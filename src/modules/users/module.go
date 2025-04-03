@@ -3,7 +3,6 @@ package users
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
 	r "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	types "github.com/juheth/Go-Clean-Arquitecture/src/common/types"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/controllers"
@@ -22,11 +21,9 @@ func configureModuleRoutes(r *r.Result, h *types.HandlersStore, uc *controllers.
 				Handler: uc.CreateUser,
 			},
 			{
-				Route:  "/all",
-				Method: http.MethodGet,
-				Handler: func(c *fiber.Ctx) error {
-					return r.Ok(c, fiber.Map{"message": "GET Users, success test"})
-				},
+				Route:   "/all",
+				Method:  http.MethodGet,
+				Handler: uc.GetAllUsers,
 			},
 		},
 	}

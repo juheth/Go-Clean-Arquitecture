@@ -8,5 +8,4 @@ func main() {
 	app := server.ProvidersStore{}
 	app.Init()
 	app.Up()
-
 }
