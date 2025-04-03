@@ -9,6 +9,7 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *entities.User) error
+	GetAllUsers() ([]*entities.User, error)
 	// GetUserByID(id string) (*entities.User, error)
 	// UpdateUser(user *entities.User) error
 	// DeleteUser(id string) error
@@ -28,6 +29,15 @@ func (r *userRepo) CreateUser(user *entities.User) error {
 	}
 
 	return r.db.Create(user).Error
+}
+
+func (r *userRepo) GetAllUsers() ([]*entities.User, error) {
+	var users []*entities.User
+	err := r.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 // func (r *userRepo) GetUserByID(id string) (*entities.User, error) {

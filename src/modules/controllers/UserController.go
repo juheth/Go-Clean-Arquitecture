@@ -31,9 +31,18 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 		return result.Bad(c, "Password must be at least 6 characters long")
 	}
 
-	if err := uc.createUserUseCase.Execute(&user); err != nil {
+	if err := uc.createUserUseCase.ExecuteCreateUser(&user); err != nil {
 		return result.Error(c, "Could not create user")
 	}
 
 	return result.Ok(c, fiber.Map{"message": "User created successfully"})
+}
+
+func (uc *UserController) GetAllUsers(c *fiber.Ctx) error {
+	result := common.NewResult()
+	users, err := uc.createUserUseCase.ExecuteGetAllUsers()
+	if err != nil {
+		return result.Error(c, "Could not retrieve users")
+	}
+	return result.Ok(c, users)
 }
