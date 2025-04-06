@@ -10,9 +10,9 @@ import (
 type UserRepository interface {
 	CreateUser(user *entities.User) error
 	GetAllUsers() ([]*entities.User, error)
-	// GetUserByID(id string) (*entities.User, error)
-	// UpdateUser(user *entities.User) error
-	// DeleteUser(id string) error
+	GetUserByID(id int) (*entities.User, error)
+	UpdateUser(user *entities.User) error
+	DeleteUser(id string) error
 }
 
 type userRepo struct {
@@ -40,16 +40,22 @@ func (r *userRepo) GetAllUsers() ([]*entities.User, error) {
 	return users, nil
 }
 
-// func (r *userRepo) GetUserByID(id string) (*entities.User, error) {
-// 	var user entities.User
-// 	err := r.db.First(&user, "id = ?", id).Error
-// 	return &user, err
-// }
+func (r *userRepo) GetUserByID(id int) (*entities.User, error) {
+	var user entities.User
+	err := r.db.First(&user, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
 
-// func (r *userRepo) UpdateUser(user *entities.User) error {
-// 	return r.db.Save(user).Error
-// }
+func (r *userRepo) UpdateUser(user *entities.User) error {
+	if user == nil {
+		return errors.New("cannot update nil user")
+	}
+	return r.db.Save(user).Error
+}
 
-// func (r *userRepo) DeleteUser(id string) error {
-// 	return r.db.Delete(&entities.User{}, "id = ?", id).Error
-// }
+func (r *userRepo) DeleteUser(id string) error {
+	return r.db.Delete(&entities.User{}, "id = ?", id).Error
+}
