@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	common "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
+	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/dto"
 	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/entities/user"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/usecases"
 )
@@ -19,21 +20,27 @@ func NewUserController(createUserUseCase usecases.UserUseCase) *UserController {
 
 func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 	result := common.NewResult()
-	var user entities.User
+	var request dto.CreateUserRequest
 
-	if err := c.BodyParser(&user); err != nil {
+	if err := c.BodyParser(&request); err != nil {
 		return result.Bad(c, "Invalid request body")
 	}
 
-	if user.Name == "" || user.Email == "" || user.Password == "" {
+	if request.Name == "" || request.Email == "" || request.Password == "" {
 		return result.Bad(c, "Name, email, and password are required")
 	}
 
-	if len(user.Password) < 6 {
+	if len(request.Password) < 6 {
 		return result.Bad(c, "Password must be at least 6 characters long")
 	}
 
-	if err := uc.createUserUseCase.ExecuteCreateUser(&user); err != nil {
+	user := &entities.User{
+		Name:     request.Name,
+		Email:    request.Email,
+		Password: request.Password,
+	}
+
+	if err := uc.createUserUseCase.ExecuteCreateUser(user); err != nil {
 		return result.Error(c, "Could not create user")
 	}
 
@@ -46,7 +53,17 @@ func (uc *UserController) GetAllUsers(c *fiber.Ctx) error {
 	if err != nil {
 		return result.Error(c, "Could not retrieve users")
 	}
-	return result.Ok(c, users)
+
+	var response []dto.UserResponse
+	for _, u := range users {
+		response = append(response, dto.UserResponse{
+			ID:    u.ID,
+			Name:  u.Name,
+			Email: u.Email,
+		})
+	}
+
+	return result.Ok(c, response)
 }
 
 func (uc *UserController) GetUserByID(c *fiber.Ctx) error {
@@ -65,28 +82,47 @@ func (uc *UserController) GetUserByID(c *fiber.Ctx) error {
 	if err != nil {
 		return result.Error(c, "Could not retrieve user")
 	}
-	return result.Ok(c, user)
+
+	response := dto.UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+	}
+
+	return result.Ok(c, response)
 }
 
 func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 	result := common.NewResult()
-	var user entities.User
-	if err := c.BodyParser(&user); err != nil {
+	var request dto.UpdateUserRequest
+
+	if err := c.BodyParser(&request); err != nil {
 		return result.Bad(c, "Invalid request body")
 	}
-	if user.ID == 0 {
+
+	if request.ID == 0 {
 		return result.Bad(c, "ID is required")
 	}
-	if user.Name == "" || user.Email == "" || user.Password == "" {
+
+	if request.Name == "" || request.Email == "" || request.Password == "" {
 		return result.Bad(c, "Name, email, and password are required")
 	}
-	if len(user.Password) < 6 {
+
+	if len(request.Password) < 6 {
 		return result.Bad(c, "Password must be at least 6 characters long")
 	}
-	if err := uc.createUserUseCase.ExecuteUpdateUser(&user); err != nil {
 
+	user := &entities.User{
+		ID:       request.ID,
+		Name:     request.Name,
+		Email:    request.Email,
+		Password: request.Password,
+	}
+
+	if err := uc.createUserUseCase.ExecuteUpdateUser(user); err != nil {
 		return result.Error(c, "Could not update user")
 	}
+
 	return result.Ok(c, fiber.Map{"message": "User updated successfully"})
 }
 
