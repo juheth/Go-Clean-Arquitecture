@@ -10,6 +10,9 @@ import (
 type UserUseCase interface {
 	ExecuteCreateUser(user *entities.User) error
 	ExecuteGetAllUsers() ([]*entities.User, error)
+	ExecuteGetUserByID(id int) (*entities.User, error)
+	ExecuteUpdateUser(user *entities.User) error
+	ExecuteDeleteUser(id string) error
 }
 
 type CreateUserUseCase struct {
@@ -46,4 +49,29 @@ func (uc *CreateUserUseCase) ExecuteGetAllUsers() ([]*entities.User, error) {
 	}
 
 	return users, nil
+}
+
+func (uc *CreateUserUseCase) ExecuteGetUserByID(id int) (*entities.User, error) {
+	var user entities.User
+	err := uc.db.DB.QueryRow("SELECT id, name, email, password FROM users WHERE id = ?", id).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		return nil, errors.New("failed to retrieve user")
+	}
+	return &user, nil
+}
+
+func (uc *CreateUserUseCase) ExecuteUpdateUser(user *entities.User) error {
+	_, err := uc.db.DB.Exec("UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?", user.Name, user.Email, user.Password, user.ID)
+	if err != nil {
+		return errors.New("failed to update user")
+	}
+	return nil
+}
+
+func (uc *CreateUserUseCase) ExecuteDeleteUser(id string) error {
+	_, err := uc.db.DB.Exec("DELETE FROM users WHERE id = ?", id)
+	if err != nil {
+		return errors.New("failed to delete user")
+	}
+	return nil
 }

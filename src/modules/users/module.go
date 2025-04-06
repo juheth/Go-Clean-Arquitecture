@@ -25,10 +25,25 @@ func configureModuleRoutes(r *r.Result, h *types.HandlersStore, uc *controllers.
 				Method:  http.MethodGet,
 				Handler: uc.GetAllUsers,
 			},
+			{
+				Route:   "/:id",
+				Method:  http.MethodGet,
+				Handler: uc.GetUserByID,
+			},
+			{
+				Route:   "/update/:id",
+				Method:  http.MethodPut,
+				Handler: uc.UpdateUser,
+			},
+			{
+				Route:   "/delete/:id",
+				Method:  http.MethodDelete,
+				Handler: uc.DeleteUser,
+			},
 		},
 	}
-	h.Handlers = append(h.Handlers, *handlersModuleUsers)
 
+	h.Handlers = append(h.Handlers, *handlersModuleUsers)
 }
 
 func ModuleProviders() []fx.Option {
