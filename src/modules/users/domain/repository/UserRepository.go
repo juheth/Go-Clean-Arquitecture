@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/domain/entities/user"
+	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/entities/user"
 	"gorm.io/gorm"
 )
 
