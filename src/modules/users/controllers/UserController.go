@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	common "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
-	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/domain/entities/user"
-	"github.com/juheth/Go-Clean-Arquitecture/src/modules/usecases"
+	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/entities/user"
+	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/usecases"
 )
 
 type UserController struct {

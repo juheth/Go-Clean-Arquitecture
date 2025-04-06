@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	db "github.com/juheth/Go-Clean-Arquitecture/src/infrastructure/db/adapter"
-	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/domain/entities/user"
+	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/entities/user"
 )
 
 type UserUseCase interface {

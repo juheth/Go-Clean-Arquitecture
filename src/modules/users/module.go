@@ -5,8 +5,8 @@ import (
 
 	r "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	types "github.com/juheth/Go-Clean-Arquitecture/src/common/types"
-	"github.com/juheth/Go-Clean-Arquitecture/src/modules/controllers"
-	usecases "github.com/juheth/Go-Clean-Arquitecture/src/modules/usecases"
+	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/controllers"
+	usecases "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/usecases"
 	"go.uber.org/fx"
 )
 
