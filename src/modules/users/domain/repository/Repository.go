@@ -12,7 +12,7 @@ type UserRepository interface {
 	GetAllUsers() ([]*entities.User, error)
 	GetUserByID(id int) (*entities.User, error)
 	UpdateUser(user *entities.User) error
-	DeleteUser(id string) error
+	DeleteUser(id int) error
 }
 
 type userRepo struct {
@@ -27,17 +27,13 @@ func (r *userRepo) CreateUser(user *entities.User) error {
 	if user == nil {
 		return errors.New("cannot insert nil user")
 	}
-
 	return r.db.Create(user).Error
 }
 
 func (r *userRepo) GetAllUsers() ([]*entities.User, error) {
 	var users []*entities.User
 	err := r.db.Find(&users).Error
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
+	return users, err
 }
 
 func (r *userRepo) GetUserByID(id int) (*entities.User, error) {
@@ -56,6 +52,6 @@ func (r *userRepo) UpdateUser(user *entities.User) error {
 	return r.db.Save(user).Error
 }
 
-func (r *userRepo) DeleteUser(id string) error {
-	return r.db.Delete(&entities.User{}, "id = ?", id).Error
+func (r *userRepo) DeleteUser(id int) error {
+	return r.db.Delete(&entities.User{}, id).Error
 }

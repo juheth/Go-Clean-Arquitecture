@@ -11,11 +11,11 @@ import (
 )
 
 type UserController struct {
-	createUserUseCase usecases.UserUseCase
+	useCase usecases.UserUseCase
 }
 
-func NewUserController(createUserUseCase usecases.UserUseCase) *UserController {
-	return &UserController{createUserUseCase: createUserUseCase}
+func NewUserController(useCase usecases.UserUseCase) *UserController {
+	return &UserController{useCase: useCase}
 }
 
 func (uc *UserController) CreateUser(c *fiber.Ctx) error {
@@ -40,7 +40,7 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 		Password: request.Password,
 	}
 
-	if err := uc.createUserUseCase.ExecuteCreateUser(user); err != nil {
+	if err := uc.useCase.ExecuteCreateUser(user); err != nil {
 		return result.Error(c, "Could not create user")
 	}
 
@@ -49,7 +49,7 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 
 func (uc *UserController) GetAllUsers(c *fiber.Ctx) error {
 	result := common.NewResult()
-	users, err := uc.createUserUseCase.ExecuteGetAllUsers()
+	users, err := uc.useCase.ExecuteGetAllUsers()
 	if err != nil {
 		return result.Error(c, "Could not retrieve users")
 	}
@@ -78,7 +78,7 @@ func (uc *UserController) GetUserByID(c *fiber.Ctx) error {
 		return result.Bad(c, "ID must be a valid integer")
 	}
 
-	user, err := uc.createUserUseCase.ExecuteGetUserByID(intID)
+	user, err := uc.useCase.ExecuteGetUserByID(intID)
 	if err != nil {
 		return result.Error(c, "Could not retrieve user")
 	}
@@ -119,7 +119,7 @@ func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 		Password: request.Password,
 	}
 
-	if err := uc.createUserUseCase.ExecuteUpdateUser(user); err != nil {
+	if err := uc.useCase.ExecuteUpdateUser(user); err != nil {
 		return result.Error(c, "Could not update user")
 	}
 
@@ -132,8 +132,15 @@ func (uc *UserController) DeleteUser(c *fiber.Ctx) error {
 	if id == "" {
 		return result.Bad(c, "ID is required")
 	}
-	if err := uc.createUserUseCase.ExecuteDeleteUser(id); err != nil {
+
+	intID, err := strconv.Atoi(id)
+	if err != nil {
+		return result.Bad(c, "ID must be a valid integer")
+	}
+
+	if err := uc.useCase.ExecuteDeleteUser(intID); err != nil {
 		return result.Error(c, "Could not delete user")
 	}
+
 	return result.Ok(c, fiber.Map{"message": "User deleted successfully"})
 }

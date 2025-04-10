@@ -2,9 +2,10 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
 
-	db "github.com/juheth/Go-Clean-Arquitecture/src/infrastructure/db/adapter"
 	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/entities/user"
+	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/repository"
 )
 
 type UserUseCase interface {
@@ -12,66 +13,43 @@ type UserUseCase interface {
 	ExecuteGetAllUsers() ([]*entities.User, error)
 	ExecuteGetUserByID(id int) (*entities.User, error)
 	ExecuteUpdateUser(user *entities.User) error
-	ExecuteDeleteUser(id string) error
+	ExecuteDeleteUser(id int) error
 }
 
-type CreateUserUseCase struct {
-	db *db.DBConnection
+type userUseCase struct {
+	repo repository.UserRepository
 }
 
-func NewCreateUserUseCase(db *db.DBConnection) UserUseCase {
-	return &CreateUserUseCase{db: db}
+func NewUserUseCase(repo repository.UserRepository) UserUseCase {
+	return &userUseCase{repo: repo}
 }
 
-func (uc *CreateUserUseCase) ExecuteCreateUser(user *entities.User) error {
-	_, err := uc.db.DB.Exec("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, user.Password)
+func (uc *userUseCase) ExecuteCreateUser(user *entities.User) error {
+	if user == nil {
+		return errors.New("cannot insert nil user")
+	}
+	return uc.repo.CreateUser(user)
+}
+
+func (uc *userUseCase) ExecuteGetAllUsers() ([]*entities.User, error) {
+	return uc.repo.GetAllUsers()
+}
+
+func (uc *userUseCase) ExecuteGetUserByID(id int) (*entities.User, error) {
+	user, err := uc.repo.GetUserByID(id)
 	if err != nil {
-		return errors.New("failed to create user")
+		return nil, fmt.Errorf("failed to get user by ID %d: %w", id, err)
 	}
-	return nil
+	return user, nil
 }
 
-func (uc *CreateUserUseCase) ExecuteGetAllUsers() ([]*entities.User, error) {
-
-	var users []*entities.User
-	rows, err := uc.db.DB.Query("SELECT id, name, email, password FROM users")
-	if err != nil {
-		return nil, errors.New("failed to retrieve users")
+func (uc *userUseCase) ExecuteUpdateUser(user *entities.User) error {
+	if user == nil {
+		return errors.New("cannot update nil user")
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var user entities.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
-			return nil, errors.New("failed to scan user")
-		}
-		users = append(users, &user)
-	}
-
-	return users, nil
+	return uc.repo.UpdateUser(user)
 }
 
-func (uc *CreateUserUseCase) ExecuteGetUserByID(id int) (*entities.User, error) {
-	var user entities.User
-	err := uc.db.DB.QueryRow("SELECT id, name, email, password FROM users WHERE id = ?", id).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
-	if err != nil {
-		return nil, errors.New("failed to retrieve user")
-	}
-	return &user, nil
-}
-
-func (uc *CreateUserUseCase) ExecuteUpdateUser(user *entities.User) error {
-	_, err := uc.db.DB.Exec("UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?", user.Name, user.Email, user.Password, user.ID)
-	if err != nil {
-		return errors.New("failed to update user")
-	}
-	return nil
-}
-
-func (uc *CreateUserUseCase) ExecuteDeleteUser(id string) error {
-	_, err := uc.db.DB.Exec("DELETE FROM users WHERE id = ?", id)
-	if err != nil {
-		return errors.New("failed to delete user")
-	}
-	return nil
+func (uc *userUseCase) ExecuteDeleteUser(id int) error {
+	return uc.repo.DeleteUser(id)
 }
