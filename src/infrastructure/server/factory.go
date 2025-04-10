@@ -5,6 +5,7 @@ import (
 	result "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	types "github.com/juheth/Go-Clean-Arquitecture/src/common/types"
 	db "github.com/juheth/Go-Clean-Arquitecture/src/infrastructure/db/adapter"
+	"github.com/juheth/Go-Clean-Arquitecture/src/modules/tasks"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users"
 
 	"go.uber.org/fx"
@@ -23,6 +24,7 @@ func (ps *ProvidersStore) Init() {
 	}
 
 	ps.AddModule(users.ModuleProviders())
+	ps.AddModule(tasks.ModuleProviders())
 }
 
 func (ps *ProvidersStore) AddModule(p []fx.Option) {

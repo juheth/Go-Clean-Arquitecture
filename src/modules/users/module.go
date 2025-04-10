@@ -6,6 +6,7 @@ import (
 	r "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	types "github.com/juheth/Go-Clean-Arquitecture/src/common/types"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/controllers"
+	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/repository"
 	usecases "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/usecases"
 	"go.uber.org/fx"
 )
@@ -48,7 +49,8 @@ func configureModuleRoutes(r *r.Result, h *types.HandlersStore, uc *controllers.
 
 func ModuleProviders() []fx.Option {
 	return []fx.Option{
-		fx.Provide(usecases.NewCreateUserUseCase),
+		fx.Provide(repository.NewUserRepository),
+		fx.Provide(usecases.NewUserUseCase),
 		fx.Provide(controllers.NewUserController),
 
 		fx.Invoke(configureModuleRoutes),
