@@ -47,6 +47,11 @@ func configureModuleRoutes(r *r.Result, h *types.HandlersStore, uc *controllers.
 				Method:  http.MethodPut,
 				Handler: uc.UpdateTaskStatus,
 			},
+			{
+				Route:   "/project/:project_id/tasks",
+				Method:  http.MethodGet,
+				Handler: uc.GetTasksByProjectID,
+			},
 		},
 	}
 

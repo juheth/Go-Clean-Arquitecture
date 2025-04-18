@@ -170,3 +170,31 @@ func (tc *TaskController) UpdateTaskStatus(c *fiber.Ctx) error {
 
 	return result.Ok(c, fiber.Map{"message": "Task status updated successfully"})
 }
+
+func (tc *TaskController) GetTasksByProjectID(c *fiber.Ctx) error {
+	result := common.NewResult()
+	projectID, err := c.ParamsInt("project_id")
+	if err != nil {
+		return result.Bad(c, "Invalid project ID")
+	}
+
+	tasks, err := tc.TaskUseCase.ExecuteGetTasksByProjectID(uint(projectID))
+	if err != nil {
+		return result.Error(c, "Failed to retrieve tasks for the project")
+	}
+
+	var response []dto.TaskResponse
+	for _, t := range tasks {
+		response = append(response, dto.TaskResponse{
+			ID:          t.ID,
+			Title:       t.Title,
+			Description: t.Description,
+
+			Status:    t.Status,
+			CreatedAt: t.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: t.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return result.Ok(c, response)
+}

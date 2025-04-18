@@ -57,7 +57,7 @@ func (uc *UserController) GetAllUsers(c *fiber.Ctx) error {
 	var response []dto.UserResponse
 	for _, u := range users {
 		response = append(response, dto.UserResponse{
-			ID:    u.ID,
+			ID:    int(u.ID),
 			Name:  u.Name,
 			Email: u.Email,
 		})
@@ -84,7 +84,7 @@ func (uc *UserController) GetUserByID(c *fiber.Ctx) error {
 	}
 
 	response := dto.UserResponse{
-		ID:    user.ID,
+		ID:    int(user.ID),
 		Name:  user.Name,
 		Email: user.Email,
 	}
@@ -113,7 +113,7 @@ func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	user := &entities.User{
-		ID:       request.ID,
+		ID:       int(request.ID),
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
