@@ -5,6 +5,8 @@ import (
 	result "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	types "github.com/juheth/Go-Clean-Arquitecture/src/common/types"
 	db "github.com/juheth/Go-Clean-Arquitecture/src/infrastructure/db/adapter"
+
+	projects "github.com/juheth/Go-Clean-Arquitecture/src/modules/projects"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/tasks"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users"
 
@@ -25,6 +27,7 @@ func (ps *ProvidersStore) Init() {
 
 	ps.AddModule(users.ModuleProviders())
 	ps.AddModule(tasks.ModuleProviders())
+	ps.AddModule(projects.ModuleProviders())
 }
 
 func (ps *ProvidersStore) AddModule(p []fx.Option) {

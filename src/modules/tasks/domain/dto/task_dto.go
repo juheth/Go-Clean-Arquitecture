@@ -6,6 +6,8 @@ type CreateTaskRequest struct {
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	DueDate     *time.Time `json:"due_date"`
+	ProjectID   uint       `json:"project_id"`
+	Status      string     `json:"status"`
 }
 
 type UpdateTaskRequest struct {

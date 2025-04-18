@@ -13,6 +13,7 @@ type TaskRepository interface {
 	GetTaskById(id uint) (*entities.Task, error)
 	UpdateTask(task *entities.Task) error
 	DeleteTask(id uint) error
+	GetTasksByProjectID(projectID uint) ([]*entities.Task, error)
 }
 
 type taskRepo struct {
@@ -55,4 +56,13 @@ func (r *taskRepo) UpdateTask(task *entities.Task) error {
 
 func (r *taskRepo) DeleteTask(id uint) error {
 	return r.db.Delete(&entities.Task{}, id).Error
+}
+
+func (r *taskRepo) GetTasksByProjectID(projectID uint) ([]*entities.Task, error) {
+	var tasks []*entities.Task
+	err := r.db.Where("proyect_id = ?", projectID).Find(&tasks).Error
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }

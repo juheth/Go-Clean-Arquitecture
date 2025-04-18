@@ -14,6 +14,7 @@ type UCTaskUseCase interface {
 	ExecuteUpdateTask(task *entities.Task) error
 	ExecuteDeleteTask(id uint) error
 	ExecuteUpdateTaskStatus(id uint, status string) error
+	ExecuteGetTasksByProjectID(projectID uint) ([]*entities.Task, error)
 }
 
 type TaskUseCase struct {
@@ -90,4 +91,12 @@ func (uc *TaskUseCase) ExecuteUpdateTaskStatus(id uint, status string) error {
 		return errors.New("failed to update task status")
 	}
 	return nil
+}
+
+func (uc *TaskUseCase) ExecuteGetTasksByProjectID(projectID uint) ([]*entities.Task, error) {
+	tasks, err := uc.repo.GetTasksByProjectID(projectID)
+	if err != nil {
+		return nil, errors.New("failed to get tasks by project ID")
+	}
+	return tasks, nil
 }
