@@ -17,8 +17,10 @@ type ConfigDB struct {
 }
 
 type ConfigApp struct {
-	Port string
+	Port      string
+	SecretKey string
 }
+
 type Config struct {
 	App *ConfigApp
 	DB  *ConfigDB
@@ -33,7 +35,10 @@ func NewConfig() *Config {
 		panic(err)
 	}
 	return &Config{
-		&ConfigApp{Port: os.Getenv("HTTP_PORT")},
+		&ConfigApp{
+			Port:      os.Getenv("HTTP_PORT"),
+			SecretKey: os.Getenv("JWT_SECRET"),
+		},
 		&ConfigDB{
 			Host:     os.Getenv("DB_HOST"),
 			Password: os.Getenv("DB_PASSWORD"),

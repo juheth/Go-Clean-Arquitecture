@@ -63,6 +63,7 @@ func ModuleProviders() []fx.Option {
 	return []fx.Option{
 		fx.Provide(repository.NewTaskRepository),
 		fx.Provide(usecases.NewTaskUseCase),
+
 		fx.Provide(controllers.NewTaskController),
 
 		fx.Invoke(configureModuleRoutes),

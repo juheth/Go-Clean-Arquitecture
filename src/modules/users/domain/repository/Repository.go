@@ -11,6 +11,7 @@ type UserRepository interface {
 	CreateUser(user *entities.User) error
 	GetAllUsers() ([]*entities.User, error)
 	GetUserByID(id int) (*entities.User, error)
+	GetUserByEmail(email string) (*entities.User, error)
 	UpdateUser(user *entities.User) error
 	DeleteUser(id int) error
 }
@@ -54,4 +55,13 @@ func (r *userRepo) UpdateUser(user *entities.User) error {
 
 func (r *userRepo) DeleteUser(id int) error {
 	return r.db.Delete(&entities.User{}, id).Error
+}
+
+func (r *userRepo) GetUserByEmail(email string) (*entities.User, error) {
+	var user entities.User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
