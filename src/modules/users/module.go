@@ -32,6 +32,16 @@ func configureModuleRoutes(r *r.Result, h *types.HandlersStore, uc *controllers.
 				Handler: uc.GetUserByID,
 			},
 			{
+				Route:   "/authenticated",
+				Method:  http.MethodPost,
+				Handler: uc.JwtUser,
+			},
+			{
+				Route:   "/check-auth",
+				Method:  http.MethodPost,
+				Handler: uc.IsAuthenticated,
+			},
+			{
 				Route:   "/update/:id",
 				Method:  http.MethodPut,
 				Handler: uc.UpdateUser,

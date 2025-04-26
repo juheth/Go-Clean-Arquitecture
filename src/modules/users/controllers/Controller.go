@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"log"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/juheth/Go-Clean-Arquitecture/src/common/auth"
 	common "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	"github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/dto"
 	entities "github.com/juheth/Go-Clean-Arquitecture/src/modules/users/domain/entities/user"
@@ -12,10 +15,14 @@ import (
 
 type UserController struct {
 	useCase usecases.UserUseCase
+	jwt     *auth.JWT
 }
 
-func NewUserController(useCase usecases.UserUseCase) *UserController {
-	return &UserController{useCase: useCase}
+func NewUserController(useCase usecases.UserUseCase, jwt *auth.JWT) *UserController {
+	return &UserController{
+		useCase: useCase,
+		jwt:     jwt,
+	}
 }
 
 func (uc *UserController) CreateUser(c *fiber.Ctx) error {
@@ -40,11 +47,22 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 		Password: request.Password,
 	}
 
-	if err := uc.useCase.ExecuteCreateUser(user); err != nil {
+	if _, err := uc.useCase.ExecuteCreateUser(user); err != nil {
 		return result.Error(c, "Could not create user")
 	}
 
-	return result.Ok(c, fiber.Map{"message": "User created successfully"})
+	jwtService := auth.NewJWT("JWT_SECRET")
+
+	token, err := jwtService.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		log.Printf("Error generating JWT token: %v", err)
+		return result.Error(c, "Could not generate token")
+	}
+
+	return result.Ok(c, fiber.Map{
+		"message": "User created successfully",
+		"token":   token,
+	})
 }
 
 func (uc *UserController) GetAllUsers(c *fiber.Ctx) error {
@@ -143,4 +161,55 @@ func (uc *UserController) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	return result.Ok(c, fiber.Map{"message": "User deleted successfully"})
+}
+
+func (uc *UserController) JwtUser(c *fiber.Ctx) error {
+	result := common.NewResult()
+	var request dto.JwtRequest
+
+	if err := c.BodyParser(&request); err != nil {
+		return result.Bad(c, "Invalid request body")
+	}
+
+	if request.Email == "" || request.Password == "" {
+		return result.Bad(c, "Email and password are required")
+	}
+
+	token, err := uc.useCase.ExecuteAuthenticateUser(request.Email, request.Password)
+	if err != nil {
+		return result.Error(c, "Authentication failed")
+	}
+
+	return result.Ok(c, fiber.Map{
+		"token": token,
+	})
+}
+
+func (uc *UserController) IsAuthenticated(c *fiber.Ctx) error {
+	result := common.NewResult()
+
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return result.Bad(c, "Token de autorización requerido")
+	}
+
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+		return result.Bad(c, "Formato de token inválido")
+	}
+
+	token := parts[1]
+
+	claims, err := uc.jwt.ValidateToken(token)
+	if err != nil {
+		return result.Bad(c, "Token inválido o expirado")
+	}
+
+	return result.Ok(c, fiber.Map{
+		"message": "Usuario autenticado",
+		"user": fiber.Map{
+			"id":    claims.ID,
+			"email": claims.Email,
+		},
+	})
 }

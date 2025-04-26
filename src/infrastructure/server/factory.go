@@ -1,6 +1,7 @@
 package infraestructure
 
 import (
+	"github.com/juheth/Go-Clean-Arquitecture/src/common/auth"
 	config "github.com/juheth/Go-Clean-Arquitecture/src/common/config"
 	result "github.com/juheth/Go-Clean-Arquitecture/src/common/response"
 	types "github.com/juheth/Go-Clean-Arquitecture/src/common/types"
@@ -23,6 +24,13 @@ func (ps *ProvidersStore) Init() {
 		fx.Provide(result.NewResult),
 		fx.Provide(config.NewConfig),
 		fx.Provide(db.NewDBConnection),
+
+		fx.Provide(func(cfg *config.Config) *auth.JWT {
+			if cfg.App.SecretKey == "" {
+				panic("JWT secret key no configurada")
+			}
+			return auth.NewJWT(cfg.App.SecretKey)
+		}),
 	}
 
 	ps.AddModule(users.ModuleProviders())
